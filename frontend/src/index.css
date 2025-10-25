@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Apply smooth transitions to all elements */
+*,
+*::before,
+*::after {
+  transition: all 200ms ease-in-out;
+}
+
+/* In your global CSS or tailwind.config add custom animation */
+@keyframes slide-in {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s ease-out;
+}
