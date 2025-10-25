@@ -2,14 +2,17 @@ import { useState } from "react";
 import Input from "../../components/ui/Input";
 import api from "../../utils/api";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; // 👈 use global context
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // 👈 from AuthContext
+  const { login } = useAuth();
+  const { addToast } = useToast();
+
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showResend, setShowResend] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,26 +20,39 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setShowResend(false);
 
     try {
       const res = await api.post("/auth/login", form);
       const { token, user } = res.data;
 
-      // store locally
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // update context
       login({ token, user });
+      addToast("Login successful!", "success");
 
-      // redirect based on role
       if (user.role === "organizer") navigate("/organizer");
       else if (user.role === "exhibitor") navigate("/exhibitor");
       else navigate("/attendee");
 
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const msg = err.response?.data?.message || "Login failed";
+      addToast(msg, "error");
+
+      if (msg === "Email not verified") {
+        setShowResend(true);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      setLoading(true);
+      await api.post("/auth/resend-verification", { email: form.email });
+      addToast("Verification email sent again!", "success");
+      setShowResend(false);
+    } catch (err) {
+      addToast(err.response?.data?.message || "Failed to resend email", "error");
     } finally {
       setLoading(false);
     }
@@ -48,8 +64,6 @@ export default function Login() {
         <h2 className="text-2xl font-semibold mb-6 text-center text-[#302f2c]">
           Welcome Back 👋
         </h2>
-
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <Input
@@ -68,6 +82,16 @@ export default function Login() {
             onChange={handleChange}
             placeholder="Enter your password"
           />
+
+          {/* Forgot Password Link */}
+          <div className="text-right mt-1 mb-4">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+          </div>
 
           <button
             type="submit"
@@ -88,18 +112,31 @@ export default function Login() {
                   r="10"
                   stroke="currentColor"
                   strokeWidth="4"
-                ></circle>
+                />
                 <path
                   className="opacity-75"
                   fill="currentColor"
                   d="M4 12a8 8 0 018-8v8z"
-                ></path>
+                />
               </svg>
             ) : (
               "Login"
             )}
           </button>
         </form>
+
+        {showResend && (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-red-500 mb-2">Email not verified.</p>
+            <button
+              onClick={handleResend}
+              disabled={loading}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Resend Verification Email
+            </button>
+          </div>
+        )}
 
         <p className="text-sm text-center mt-4">
           Don’t have an account?{" "}

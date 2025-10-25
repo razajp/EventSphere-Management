@@ -1,43 +1,33 @@
 import mongoose from "mongoose";
 
-// ✅ Define embedded profile schema
-const profileSchema = new mongoose.Schema(
-  {
-    company: { type: String, trim: true },
-    category: { type: String, trim: true },
-    boothNumber: { type: String, trim: true },
-    contactEmail: { type: String, trim: true },
-    logoUrl: { type: String, trim: true },
-  },
-  { _id: false } // no separate _id for subdocument
-);
+const profileSchema = new mongoose.Schema({
+  company: String,
+  category: String,
+  boothNumber: String,
+  contactEmail: String,
+  logoUrl: String,
+}, { _id: false });
 
-// ✅ Main user schema
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
-    role: {
-      type: String,
-      enum: ["organizer", "exhibitor", "attendee"],
-      default: "attendee",
-    },
-    status: {
-      type: String,
-      enum: ["pending", "active", "inactive"],
-      default: "active", // will be overridden in pre-save
-    },
-    profileCompleted: { type: Boolean, default: false },
-    profile: profileSchema, // 👈 nested exhibitor details
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Session" }], // ⭐ added
-  },
-  { timestamps: true }
-);
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["organizer","exhibitor","attendee"], default: "attendee" },
 
-// ✅ Automatically set exhibitor defaults on first save
-userSchema.pre("save", function (next) {
-  if (this.isNew && this.role === "exhibitor") {
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+
+  status: { type: String, enum: ["pending","active","inactive"], default: "active" },
+  profileCompleted: { type: Boolean, default: false },
+  profile: profileSchema,
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Session" }],
+}, { timestamps: true });
+
+userSchema.pre("save", function(next) {
+  if(this.isNew && this.role === "exhibitor") {
     this.status = "pending";
     this.profileCompleted = false;
   }

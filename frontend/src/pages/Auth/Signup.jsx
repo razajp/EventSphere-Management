@@ -2,28 +2,33 @@ import { useState } from "react";
 import Input from "../../components/ui/Input";
 import api from "../../utils/api";
 import { useNavigate, Link } from "react-router-dom";
+import { useToast } from "../../context/ToastContext";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     role: "attendee",
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const res = await api.post("/auth/register", form);
-      setSuccess(res.data.message);
+      await api.post("/auth/register", form);
+      addToast("Registered! Check your email to verify.", "success");
       setTimeout(() => navigate("/"), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      addToast(err.response?.data?.message || "Registration failed", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,9 +38,6 @@ export default function Signup() {
         <h2 className="text-2xl font-semibold mb-6 text-center text-[#302f2c]">
           Create Account ✨
         </h2>
-
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-        {success && <p className="text-green-600 text-sm mb-3">{success}</p>}
 
         <form onSubmit={handleSubmit}>
           <Input
@@ -61,6 +63,7 @@ export default function Signup() {
             onChange={handleChange}
             placeholder="Create a password"
           />
+
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Role</label>
             <select
@@ -77,15 +80,19 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full py-2 mt-2 bg-[#302f2c] text-[#efede3] rounded-xl font-medium hover:opacity-90 transition"
+            disabled={loading}
+            className="w-full py-2 mt-2 bg-[#302f2c] text-[#efede3] rounded-xl font-medium hover:opacity-90 transition flex items-center justify-center"
           >
-            Sign Up
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
           Already have an account?{" "}
-          <Link to="/" className="text-[#302f2c] font-medium hover:underline">
+          <Link
+            to="/"
+            className="text-[#302f2c] font-medium hover:underline"
+          >
             Login
           </Link>
         </p>

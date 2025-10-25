@@ -21,7 +21,6 @@ export default function ExpoList() {
       const res = await api.get("/expos");
       const currentDate = new Date();
 
-      // determine status dynamically (if backend not doing it)
       const updated = res.data.map((expo) => {
         const start = new Date(expo.startDate);
         const end = new Date(expo.endDate);

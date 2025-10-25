@@ -5,16 +5,16 @@ export default function ToastContainer() {
   const { toasts } = useToast();
 
   return (
-    <div className="fixed top-5 right-5 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`px-4 py-2 rounded shadow text-white font-medium ${
+          className={`px-4 py-2 rounded-xl shadow text-white font-medium ${
             toast.type === "info"
-              ? "bg-blue-500"
+              ? "bg-blue-600"
               : toast.type === "success"
-              ? "bg-green-500"
-              : "bg-red-500"
+              ? "bg-green-600"
+              : "bg-red-600"
           } animate-slide-in`}
         >
           {toast.message}

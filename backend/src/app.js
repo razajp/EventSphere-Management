@@ -10,15 +10,16 @@ import attendeeRoutes from "./routes/attendeeRoutes.js";
 
 const app = express();
 
-// Enable CORS specifically for your frontend dev server
+// ✅ Enable CORS for frontend
 app.use(cors({
-  origin: "http://localhost:5173", // frontend URL
-  credentials: true
+  origin: "http://localhost:3000", // frontend URL
+  credentials: true,
 }));
 
+// ✅ Parse JSON
 app.use(express.json());
 
-// Routes
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/expos", expoRoutes);
 app.use("/api/exhibitor", exhibitorRoutes);
@@ -27,6 +28,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/attendee", attendeeRoutes);
 
+// ✅ Health check
 app.get("/", (req, res) => {
   res.send("EventSphere Backend is Live ✅");
 });

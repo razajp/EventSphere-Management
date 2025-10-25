@@ -71,16 +71,31 @@ export const createExpo = async (req, res) => {
  */
 export const getExpos = async (req, res) => {
   try {
-    const { organizer } = req.query;
-    const filter = organizer ? { organizerId: organizer } : {};
+    console.log(req.user);
+    
+    // 🔹 Only show expos for the logged-in organizer
+    const organizerId = req.user?._id;
+    if (!organizerId) return res.status(401).json({ message: "Unauthorized" });
 
-    const expos = await Expo.find(filter)
+    // Fetch expos for this organizer only
+    const expos = await Expo.find({ organizerId })
       .populate("organizerId", "name email role")
       .populate("exhibitors", "name email profile.company")
       .populate("attendees", "name email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(expos);
+    const currentDate = new Date();
+
+    // Add status dynamically
+    const exposWithStatus = expos.map((expo) => {
+      let status = "upcoming";
+      if (currentDate >= expo.startDate && currentDate <= expo.endDate) status = "active";
+      else if (currentDate > expo.endDate) status = "completed";
+
+      return { ...expo.toObject(), status };
+    });
+
+    res.status(200).json(exposWithStatus);
   } catch (error) {
     console.error("Error fetching expos:", error);
     res.status(500).json({ message: "Server error while fetching expos" });

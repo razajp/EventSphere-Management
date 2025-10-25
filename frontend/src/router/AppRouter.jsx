@@ -1,11 +1,17 @@
+// src/AppRouter.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import { SocketProvider } from "../context/SocketContext";
 import { ToastProvider } from "../context/ToastContext";
+import ToastContainer from "../components/ui/ToastContainer";
 
 // Auth Pages
 import Login from "../pages/Auth/Login";
 import Signup from "../pages/Auth/Signup";
+import ResendVerification from "../pages/Auth/ResendVerification";
+import VerifyEmail from "../pages/Auth/VerifyEmail";
+import ForgotPassword from "../pages/Auth/ForgotPassword";
+import ResetPassword from "../pages/Auth/ResetPassword";
 
 // Organizer Pages
 import OrganizerDashboard from "../pages/Organizer/Dashboard";
@@ -20,7 +26,7 @@ import ExposPageExhibitor from "../pages/Exhibitor/ExposPage";
 // Attendee Pages
 import AttendeeDashboard from "../pages/Attendee/Dashboard";
 import ExposPageAttendee from "../pages/Attendee/ExposPage";
-import Schedules from "../pages/Attendee/Schedules"; // future addition
+import Schedules from "../pages/Attendee/Schedules";
 
 // Route Protection
 import ProtectedRoute from "./ProtectedRoute";
@@ -31,15 +37,18 @@ export default function AppRouter() {
       <AuthProvider>
         <SocketProvider>
           <BrowserRouter>
-            <Routes>
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Toast container is mounted once globally */}
+            <ToastContainer />
 
-              {/* ------------------ AUTH ROUTES ------------------ */}
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/resend-verification" element={<ResendVerification />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* ------------------ ORGANIZER ROUTES ------------------ */}
               <Route
                 path="/organizer"
                 element={
@@ -48,7 +57,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/organizer/expos"
                 element={
@@ -57,7 +65,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/organizer/exhibitors"
                 element={
@@ -67,7 +74,6 @@ export default function AppRouter() {
                 }
               />
 
-              {/* ------------------ EXHIBITOR ROUTES ------------------ */}
               <Route
                 path="/exhibitor"
                 element={
@@ -76,7 +82,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/exhibitor/expos"
                 element={
@@ -85,7 +90,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/exhibitor/profile-setup"
                 element={
@@ -95,7 +99,6 @@ export default function AppRouter() {
                 }
               />
 
-              {/* ------------------ ATTENDEE ROUTES ------------------ */}
               <Route
                 path="/attendee"
                 element={
@@ -104,7 +107,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/attendee/expos"
                 element={
@@ -113,7 +115,6 @@ export default function AppRouter() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/attendee/schedule"
                 element={
@@ -123,7 +124,6 @@ export default function AppRouter() {
                 }
               />
 
-              {/* ------------------ FALLBACK ------------------ */}
               <Route
                 path="*"
                 element={

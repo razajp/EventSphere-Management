@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/", protect, createExpo);
 
 // Get Expos (Public or filtered by organizer)
-router.get("/", getExpos);
+router.get("/", protect, getExpos);
 
 router.get("/for-exhibitor", getExposForExhibitor);
 router.get("/for-attendee", getExposForAttendee);

@@ -10,6 +10,10 @@ export default defineConfig({
   ],
   server: {
     // 👇 This is the key line that fixes 404 on refresh
+    port: 3000,
+    proxy: {
+      '/api': 'http://localhost:5000',
+    },
     historyApiFallback: true,
   },
 })

@@ -4,14 +4,12 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // prevent flash logout on reload
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔄 Rehydrate user on page refresh
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    if (storedUser) setUser(JSON.parse(storedUser));
     setLoading(false);
   }, []);
 
@@ -19,27 +17,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
+    setToken(token);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    setToken(null);
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser, // ✅ added so other components can update the user
-        login,
-        logout,
-        loading,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, setUser, token, login, logout, loading }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);
