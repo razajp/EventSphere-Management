@@ -10,7 +10,7 @@ import {
 
 const links = [
   { path: "/attendee", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/attendee/expos", label: "My Expos", icon: Building2 },
+  { path: "/attendee/expos", label: "Expos", icon: Building2 },
   { path: "/attendee/schedule", label: "Schedule", icon: CalendarDays },
   { path: "/attendee/community", label: "Community", icon: Users2 },
   { path: "/attendee/insights", label: "Insights", icon: BarChart3 },
