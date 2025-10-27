@@ -8,6 +8,9 @@ export default function ExhibitorLayout({ children }) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  console.log(user);
+  
+
   useEffect(() => {
     if (!loading && user) {
       if (!user.profileCompleted || user.status === "pending") {
